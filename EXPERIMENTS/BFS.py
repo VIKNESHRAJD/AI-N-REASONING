@@ -101,3 +101,41 @@ if solution is not None:
     print("Path cost:", len(solution) - 1)
 else:
     print("\nFailure: No path exists.")
+
+
+#OUTPUT
+'''
+Exploring state: A
+Current path: ['A']
+Generated child: B
+Generated child: C
+Frontier: ['B', 'C']
+Exploring state: B
+Current path: ['A', 'B']
+Generated child: D
+Generated child: E
+Frontier: ['C', 'D', 'E']
+Exploring state: C
+Current path: ['A', 'C']
+Generated child: F
+Generated child: G
+Frontier: ['D', 'E', 'F', 'G']
+Exploring state: D
+Current path: ['A', 'B', 'D']
+Frontier: ['E', 'F', 'G']
+Exploring state: E
+Current path: ['A', 'B', 'E']
+Generated child: H
+Frontier: ['F', 'G', 'H']
+Exploring state: F
+Current path: ['A', 'C', 'F']
+Frontier: ['G', 'H']
+Exploring state: G
+Current path: ['A', 'C', 'G']
+Generated child: I
+Goal state I found!
+
+Solution path:
+A -> C -> G -> I
+Path cost: 3 
+'''
