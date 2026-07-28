@@ -60,13 +60,14 @@ def depth_first_search(graph, initial_state, goal_state):
     return None
 
 
+
 graph = {
     "A": ["B", "C"],
     "B": ["A", "D", "E"],
     "C": ["A", "F", "G"],
     "D": ["B"],
-    "E": ["B", "H", "I"],
-    "F": ["C", "I"],
+    "E": ["B", "H"],
+    "F": ["C"],
     "G": ["C", "I"],
     "H": ["E"],
     "I": ["G"]
