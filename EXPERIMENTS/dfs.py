@@ -89,6 +89,7 @@ else:
 
 ######OUTPUT
 
+ '''
  Expanding node: A
 Current path: ['A']
 Generated child : B
@@ -118,3 +119,4 @@ Solution path:
 A -> C -> G -> I
 Path cost: 3
 PS C:\Users\DSL-189\Videos\VIKNESHRAJ  AI> 
+'''
