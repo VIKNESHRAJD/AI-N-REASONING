@@ -7,100 +7,143 @@ def uniform_cost_search(graph, initial_state, goal_state):
         "path": [initial_state],
         "path_cost": 0
     }
-
-    if initial_state == goal_state:
-        return initial_node["path"], initial_node["path_cost"]
-
     frontier = []
-    heapq.heappush(frontier, (0, initial_node))
-
+    insertion_number = 0
+    heapq.heappush(frontier, (initial_node["path_cost"], insertion_number, initial_node))
     explored = set()
+    frontier_cost = {initial_state: 0}
 
     while frontier:
 
-        current_cost, node = heapq.heappop(frontier)
-
+        current_cost, _, node = heapq.heappop(frontier)
         current_state = node["state"]
         current_path = node["path"]
 
         if current_state in explored:
             continue
+        if current_cost != frontier_cost.get(current_state, float('inf')):
+            continue
 
+        del frontier_cost[current_state]
         print(f"\nExpanding node: {current_state}")
         print(f"Current path: {current_path}")
         print(f"Current cost: {current_cost}")
 
         if current_state == goal_state:
-            print(f"\nGoal State {goal_state} found!")
+            print(f"\nGoal State found!")
             return current_path, current_cost
-
         explored.add(current_state)
 
-        frontier_state = {
-            frontier_node["state"]
-            for _, frontier_node in frontier
-        }
+        for child_state, step_cost in graph.get(current_state, []):
 
-        for child_state, cost in graph.get(current_state, []):
-
-            if (
-                child_state not in explored
-                and child_state not in frontier_state
-            ):
-
+            if child_state not in explored:
+                new_cost = current_cost + step_cost
                 child_node = {
                     "state": child_state,
                     "path": current_path + [child_state],
-                    "path_cost": current_cost + cost
+                    "path_cost": new_cost
                 }
 
-                print(f"Generated child : {child_state} (Cost = {cost})")
+                if child_state not in frontier_cost:
+                    insertion_number += 1
+                    heapq.heappush(frontier, (new_cost, insertion_number, child_node))
+                    frontier_cost[child_state] = new_cost
+                    print(f"Added : {child_state} with cost {new_cost}")
 
-                heapq.heappush(
-                    frontier,
-                    (current_cost + cost, child_node)
-                )
+                elif new_cost < frontier_cost[child_state]:
+                    insertion_number += 1
+                    heapq.heappush(frontier, (new_cost, insertion_number, child_node))
+                    frontier_cost[child_state] = new_cost
+                    print(f"Replaced Path to {child_state} with new cost {new_cost}")
+        print("explored:", explored)
+        print("frontier:",{state:cost for state, cost in frontier_cost.items()})
 
-                frontier_state.add(child_state)
-
-        print(
-            "Frontier:",
-            [
-                (frontier_node["state"], cost)
-                for cost, frontier_node in frontier
-            ]
-        )
-
-        print("Explored:", explored)
-
-    return None, None
+    return None
 
 
-graph = {
-    "A": [("B", 2), ("C", 4)],
-    "B": [("D", 3), ("E", 5)],
-    "C": [("F", 2), ("G", 3)],
-    "D": [],
-    "E": [("H", 2)],
-    "F": [],
-    "G": [("I", 4)],
-    "H": [],
-    "I": []
-}
+graph = {"A": [("B", 8), ("C", 13),("D", 9)],
+         "B": [("A", 8), ("H", 11)],
+         "C": [("A", 13), ("G", 11),("H", 14)],
+         "D": [("A", 9), ("E", 9)],
+         "E": [("D", 9), ("F", 3),("G", 2)],
+         "F": [("E", 3)],
+         "G": [("C", 11), ("E", 2), ("H", 12)],
+         "H": [("B", 11),("C", 14),("G", 12)]
+         }
 
 initial_state = "A"
-goal_state = "I"
+goal_state = "G"
 
-solution, cost = uniform_cost_search(
-    graph,
-    initial_state,
-    goal_state
-)
+result = uniform_cost_search(graph, initial_state, goal_state)
 
-if solution is not None:
-    print("\nSolution path:")
-    print(" -> ".join(solution))
-    print("Path cost:", cost)
-
+if result is not None:
+    solution_path, total_cost = result
+    print("\nSolution Path:")
+    print(" -> ".join(solution_path))
+    print(f"Total Cost: {total_cost}")
 else:
-    print("\nFailure: No path exists.")
+    print("\n Failure: No path exists.")
+
+
+
+
+'''
+OUTPUT:
+
+Expanding node: A
+Current path: ['A']
+Current cost: 0
+Added : B with cost 8
+Added : C with cost 13
+Added : D with cost 9
+explored: {'A'}
+frontier: {'B': 8, 'C': 13, 'D': 9}
+
+Expanding node: B
+Current path: ['A', 'B']
+Current cost: 8
+Added : H with cost 19
+explored: {'A', 'B'}
+frontier: {'C': 13, 'D': 9, 'H': 19}
+
+Expanding node: D
+Current path: ['A', 'D']
+Current cost: 9
+Added : E with cost 18
+explored: {'A', 'D', 'B'}
+frontier: {'C': 13, 'H': 19, 'E': 18}
+
+Expanding node: C
+Current path: ['A', 'C']
+Current cost: 13
+Added : G with cost 24
+explored: {'A', 'D', 'C', 'B'}
+frontier: {'H': 19, 'E': 18, 'G': 24}
+
+Expanding node: E
+Current path: ['A', 'D', 'E']
+Current cost: 18
+Added : F with cost 21
+Replaced Path to G with new cost 20
+explored: {'A', 'E', 'C', 'D', 'B'}
+frontier: {'H': 19, 'G': 20, 'F': 21}
+
+Expanding node: H
+Current path: ['A', 'B', 'H']
+Current cost: 19
+explored: {'A', 'E', 'C', 'D', 'H', 'B'}
+frontier: {'G': 20, 'F': 21}
+
+Expanding node: G
+Current path: ['A', 'D', 'E', 'G']
+Current cost: 20
+
+Goal State found!
+
+Solution Path:
+A -> D -> E -> G
+Total Cost: 20
+
+''''
+
+### SORRY FOR THE MISTAKE GUYS
