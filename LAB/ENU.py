@@ -1,66 +1,86 @@
 class BayesNode:
-    def__init__ (self, name, parents, cpt):
+    def __init__(self, name, parents, cpt):
         self.name = name
         self.parents = parents
         self.cpt = cpt
 
     def probability(self, value, evidence):
-        key = tuple(evidence [P] for P in self.parents)
-        P = self.cpt[key]
-        return P if values else 1-P
+        """Return P(self=value | parent values in evidence)."""
+        key = tuple(evidence[parent] for parent in self.parents)
+        probability_true = self.cpt[key]
+        return probability_true if value else 1 - probability_true
+
 
 class BayesNet:
-    def__init__ (self.node):
-    self.nodes = {n.name : n for n in nodes}
-    self.variables = [n.names for n in nodes]
+    def __init__(self, nodes):
+        self.nodes = {node.name: node for node in nodes}
+        self.variables = [node.name for node in nodes]
 
-def normalize(Q);
-    S = sum(Q.values())
 
-    return {K: V/S for K,  V in Q.items()}
+def normalize(distribution):
+    total = sum(distribution.values())
+    if total == 0:
+        raise ValueError("Cannot normalize a distribution with a zero total.")
+    return {key: value / total for key, value in distribution.items()}
 
-def enumerate_all (vars, e, bn):
-    if not vars:
+
+def enumerate_all(variables, evidence, bayes_net):
+    """Compute the probability of the evidence by enumeration."""
+    if not variables:
         return 1.0
-    V, rest = vars[0], vars [1:]
-    node = bn.nodes[V]
-    if V in e:
-        return node.Probability(e[v],e)* enumerate_all(rest,e, bn)
 
-    total = 0
-    for V in [True, False]:
-        ev = e.copy()
-        ev[V] = V
-        total += node.probability (v,ev) * enumerate_all
-        (rest, ev, bn)
+    variable, rest = variables[0], variables[1:]
+    node = bayes_net.nodes[variable]
 
-        return total
+    if variable in evidence:
+        return node.probability(evidence[variable], evidence) * enumerate_all(
+            rest, evidence, bayes_net
+        )
 
-def enumerate_ask (X, e, bn):
+    total = 0.0
+    for value in (True, False):
+        extended_evidence = evidence.copy()
+        extended_evidence[variable] = value
+        total += node.probability(value, extended_evidence) * enumerate_all(
+            rest, extended_evidence, bayes_net
+        )
 
-    Q ={}
-    for X in [True, False]:
-        ex = e.copy()
-        ev[X] = X
-        Q [X] = enumerate_ask(bn.variables, ex, bn)
+    return total
 
-        return normalize(Q)
 
+def enumerate_ask(variable, evidence, bayes_net):
+    """Return the normalized posterior distribution for a Boolean variable."""
+    distribution = {}
+
+    for value in (True, False):
+        extended_evidence = evidence.copy()
+        extended_evidence[variable] = value
+        distribution[value] = enumerate_all(
+            bayes_net.variables, extended_evidence, bayes_net
+        )
+
+    return normalize(distribution)
+
+
+if __name__ == "__main__":
     B = BayesNode("B", [], {(): 0.001})
     E = BayesNode("E", [], {(): 0.002})
-    A = BayesNode("A", ["B", "E"],{
-        (True, True) : 0.95,
-        (True, False) : 0.94,
-        (False, True) : 0.29,
-        (False, False) : 0.001
-    })
+    A = BayesNode(
+        "A",
+        ["B", "E"],
+        {
+            (True, True): 0.95,
+            (True, False): 0.94,
+            (False, True): 0.29,
+            (False, False): 0.001,
+        },
+    )
+    J = BayesNode("J", ["A"], {(True,): 0.90, (False,): 0.05})
+    M = BayesNode("M", ["A"], {(True,): 0.70, (False,): 0.01})
 
-    J = BayesNode("J", ["A"], {(True,):0.90, (False,):0.05})
+    bayes_net = BayesNet([B, E, A, J, M])
+    result = enumerate_ask("B", {"J": True, "M": True}, bayes_net)
 
-    M = BayesNode("M", ["A"], {(True,):0.70, (False,):0.01})
-    bn = BayesNet ([B,E,A,J,M])
-    result = BayesNode("B",{"J": True,"M":True},bn)
-
-print("P(B)" J =True, M = True)
-print("B= True:", Round(result[True], 4))
-print("B= False:",Round(result[False],4))
+    print("P(B | J=True, M=True)")
+    print(f"B=True:  {result[True]:.4f}")
+    print(f"B=False: {result[False]:.4f}")
