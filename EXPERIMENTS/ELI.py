@@ -72,7 +72,7 @@ def elimination_ask(x, e, bn, order):
 bn = {
     "R": {"parents": [], "cpt": {(): 0.30}},
     "A": {"parents": [], "cpt": {(): 0.05}},
-    "T": {"parents": ["B", "E"], "cpt": {
+    "T": {"parents": ["R", "A"], "cpt": {
         (True, True): 0.90,
         (True, False): 0.70,
         (False, True): 0.60,
