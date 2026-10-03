@@ -85,3 +85,12 @@ result = elimination_ask("R", {"D": True, "M": True}, bn, ["M", "D", "T", "A", "
 print("P(R|D=TRUE,M=TRUE)")
 print("R=TRUE:", round(result[True], 4))
 print("R=FALSE:", round(result[False], 4))
+
+
+# OUTPUT
+
+P(R|D=TRUE,M=TRUE)
+R=TRUE: 0.6767
+R=FALSE: 0.3233
+
+
