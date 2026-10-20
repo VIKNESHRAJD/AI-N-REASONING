@@ -1,0 +1,40 @@
+import matplotlib.pyplot as plt
+from pgmpy.models import DiscreteBayesianNetwork
+from pgmpy.factors.discrete import TabularCPD
+
+H = DiscreteBayesianNetwork([
+    ('Rain','Traffic'), ('Accident','Traffic'),
+    ('Heavy-Vehicle','Traffic')
+])
+
+R = TabularCPD('Rain', 2, [[0.2],[0.8]])
+A = TabularCPD('Accident', 2, [[0.95],[0.05]])
+V = TabularCPD('Heavy-Vehicle', 2, [[0.25],[0.75]])
+T = TabularCPD('Traffic', 2,
+    [[0,0.25,0.95,0.9625,0.2,0.4,0.06,0.07],
+     [1,0.75,0.05,0.0375,0.8,0.6,0.94,0.93]],
+    evidence=['Rain','Accident','Heavy-Vehicle'],
+    evidence_card=[2,2,2])
+
+H.add_cpds(R,A,V,T)
+print("Model is valid:", H.check_model())
+
+for c in H.get_cpds():
+    print(c)
+
+p = [(1,3),(3,3),(5,3),(3,1)]
+n = ['Rain','Accident','Heavy-Vehicle','Traffic']
+
+fig, ax = plt.subplots()
+for i in range(4):
+    ax.text(p[i][0],p[i][1],n[i],ha='center',
+            bbox=dict(boxstyle='round',fc='lightgreen'))
+
+for i in range(3):
+    ax.annotate('',xy=(3,1.2),xytext=(p[i][0],2.8),
+                arrowprops=dict(arrowstyle='->'))
+
+ax.set_xlim(0,6)
+ax.set_ylim(0,4)
+ax.axis('off')
+plt.show()
