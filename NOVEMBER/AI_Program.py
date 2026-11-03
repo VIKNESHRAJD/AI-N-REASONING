@@ -211,6 +211,45 @@ plt.legend()
 plt.show()
 
 
+## Joint Probability
+#join prob
+#JOINT PROBABILITY IN BAYESIAN NETWORK
+from itertools import product
+
+# CPTs (same as enumeration program; True=1, False=0)
+P_B = 0.001
+P_E = 0.002
+P_A = {(1, 1): 0.95, (1, 0): 0.94, (0, 1): 0.29, (0, 0): 0.001}   # P(A=T | B,E)
+P_J = {1: 0.90, 0: 0.05}                                           # P(J=T | A)
+P_M = {1: 0.70, 0: 0.01}                                           # P(M=T | A)
+
+def joint_probability(B, E, A, J, M):
+    # P(B,E,A,J,M) = P(B) * P(E) * P(A|B,E) * P(J|A) * P(M|A)
+    b_p = P_B if B else 1 - P_B
+    e_p = P_E if E else 1 - P_E
+    a_p = P_A[(B, E)] if A else 1 - P_A[(B, E)]
+    j_p = P_J[A] if J else 1 - P_J[A]
+    m_p = P_M[A] if M else 1 - P_M[A]
+    return b_p * e_p * a_p * j_p * m_p
+
+# 1. Joint probability of ONE specific combination
+# Example: J=True, M=True, A=True, B=False, E=False
+p = joint_probability(B=0, E=0, A=1, J=1, M=1)
+print("P(J=T, M=T, A=T, B=F, E=F) =", p)
+
+# Full joint distribution table (all 32 combinations)
+print("\n B E A J M | Joint Probability")
+print("-" * 35)
+total = 0
+for B, E, A, J, M in product([1, 0], repeat=5):
+    jp = joint_probability(B, E, A, J, M)
+    total += jp
+    print(f" {B} {E} {A} {J} {M} | {jp:.8f}")
+
+# Check: all joint probabilities must add up to 1
+print("\nSum of all joint probabilities =", round(total, 6))
+
+
 #  8. Bayesian Network: Traffic Example
 
 pip install pgmpy
